@@ -64,6 +64,24 @@ async def poll(ctx, *,question):
     await poll_message.add_reaction("👎")
     await poll_message.add_reaction("👍")
     
+@bot.command()
+async def create(ctx, *, msg: discord.Member):
+    if not discord.utils.get(ctx.guild.text_channels, name=ctx.message.author.name):
+        if not discord.utils.get(ctx.guild.roles, name=ctx.author.name):
+            newRol = await ctx.guild.create_role(name=ctx.message.author.name)
+        else:
+            newRol = discord.utils.get(ctx.guild.roles, name=ctx.author.name)
+
+        permissions = {
+            ctx.guild.default_role: discord.PermissionOverwrite(send_messages=False),
+            newRol: discord.PermissionOverwrite(send_messages=True)
+        }
+        await ctx.author.add_roles(newRol)
+        await msg.add_roles(newRol)
+        await ctx.guild.create_text_channel(name=ctx.message.author.name, overwrites=permissions)
+        await ctx.message.add_reaction("✅")
+    else:
+        await ctx.message.add_reaction("❌")
 
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
